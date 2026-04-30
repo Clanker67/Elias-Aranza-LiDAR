@@ -1,0 +1,48 @@
+slam_toolbox:
+  ros__parameters:
+    use_sim_time: false
+
+    # Frames
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_link
+
+    # Topic — already published by your lidar node
+    scan_topic: /fake_scan
+
+    # Mode
+    mode: mapping
+
+    # Map size: 400x300 cells at 0.10m = 40m x 30m
+    resolution: 0.10
+    map_start_at_dock: true
+
+    # These control the initial allocated grid size (in meters)
+    # 400 cells * 0.10m = 40m wide, 300 cells * 0.10m = 30m tall
+    map_start_pose: [0.0, 0.0, 0.0]
+
+    # Laser settings — tuned for Ouster LiDAR
+    max_laser_range: 20.0
+    minimum_travel_distance: 0.1
+    minimum_travel_heading: 0.1
+
+    # Loop closure
+    do_loop_closing: true
+    loop_search_maximum_distance: 3.0
+    loop_match_minimum_response_coarse: 0.35
+    loop_match_minimum_response_fine: 0.45
+
+    # Performance
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
+
+    # Scan matcher
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+    link_match_minimum_response_fine: 0.1
+    link_scan_maximum_distance: 1.5
+    use_scan_barycenter: true

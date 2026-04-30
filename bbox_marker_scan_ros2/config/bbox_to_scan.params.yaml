@@ -1,0 +1,19 @@
+bbox_marker_to_scan:
+  ros__parameters:
+    marker_topic: /bbox_markers
+    scan_topic: /fake_scan
+    target_namespace: bbox_2d_outline
+    frame_id: ""
+    use_marker_header_stamp: false
+    angle_min: -3.141592653589793
+    angle_max: 3.141592653589793
+    angle_increment: 0.008726646259971648   # 0.5 deg
+    range_min: 0.05
+    range_max: 30.0
+    scan_time: 0.1
+    time_increment: 0.0
+    use_closing_segment: true
+    only_use_line_strip_and_line_list: true
+    publish_inf_for_no_return: true
+    min_points_per_marker: 2
+    ignore_zero_length_segments: true

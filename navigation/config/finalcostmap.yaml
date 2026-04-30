@@ -1,0 +1,158 @@
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      global_frame: map
+      robot_base_frame: base_link
+      update_frequency: 4.0
+      publish_frequency: 2.0
+      transform_tolerance: 1.0
+      resolution: 0.10
+      rolling_window: false
+      width: 40
+      height: 30
+      track_unknown_space: true
+      robot_radius: 0.15
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: true
+
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: true
+        observation_sources: pointcloud_scan lane_scan
+
+        pointcloud_scan:
+          topic: /fake_scan
+          data_type: LaserScan
+          marking: true
+          clearing: true
+          obstacle_max_range: 10.0
+          raytrace_max_range: 12.0
+          observation_persistence: 0.0
+          expected_update_rate: 10.0
+
+        lane_scan:
+          topic: /yolopv2/lane_scan
+          data_type: LaserScan
+          marking: true
+          clearing: false
+          obstacle_max_range: 10.0
+          raytrace_max_range: 12.0
+          observation_persistence: 0.2
+          expected_update_rate: 0.0
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.5
+        cost_scaling_factor: 5.0
+
+      always_send_full_costmap: true
+
+costmap:
+  costmap:
+    ros__parameters:
+      global_frame: odom
+      robot_base_frame: base_link
+      update_frequency: 4.0
+      publish_frequency: 2.0
+      rolling_window: true
+      width: 3
+      height: 3
+      resolution: 0.10
+      transform_tolerance: 1.0
+      robot_radius: 0.15
+      plugins: ["obstacle_layer", "inflation_layer"]
+
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: true
+        observation_sources: pointcloud_scan lane_scan
+
+        pointcloud_scan:
+          topic: /fake_scan
+          data_type: LaserScan
+          marking: true
+          clearing: true
+          obstacle_max_range: 10.0
+          raytrace_max_range: 12.0
+          observation_persistence: 0.0
+          expected_update_rate: 10.0
+
+        lane_scan:
+          topic: /yolopv2/lane_scan
+          data_type: LaserScan
+          marking: true
+          clearing: false
+          obstacle_max_range: 30.0
+          raytrace_max_range: 30.0
+          observation_persistence: 0.2
+          expected_update_rate: 0.0
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.5
+        cost_scaling_factor: 3.0
+
+      always_send_full_costmap: true
+
+behavior_server:
+  ros__parameters:
+    use_sim_time: false
+    costmap_topic: costmap/costmap_raw
+    footprint_topic: costmap/published_footprint
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "drive_on_heading", "wait"]
+    spin:
+      plugin: "nav2_behaviors/Spin"
+    backup:
+      plugin: "nav2_behaviors/BackUp"
+    drive_on_heading:
+      plugin: "nav2_behaviors/DriveOnHeading"
+    wait:
+      plugin: "nav2_behaviors/Wait"
+    global_frame: odom
+    robot_base_frame: base_link
+    transform_tolerance: 0.5
+    simulate_ahead_time: 2.0
+    max_rotational_vel: 1.0
+    min_rotational_vel: 0.4
+    rotational_acc_lim: 3.2
+
+velocity_smoother:
+  ros__parameters:
+    smoothing_frequency: 20.0
+    scale_velocities: false
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.22, 0.0, 1.0]
+    min_velocity: [-0.22, 0.0, -1.0]
+    max_accel: [2.5, 0.0, 3.2]
+    max_decel: [-2.5, 0.0, -3.2]
+    odom_topic: "/odometry/filtered"
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0
+
+planner_server:
+  ros__parameters:
+    use_sim_time: false
+    expected_planner_frequency: 10.0
+    planner_plugins: ["GridBased"]
+
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: false
+      allow_unknown: true
+
+
+lifecycle_manager_navigation:
+  ros__parameters:
+    use_sim_time: false
+    autostart: true
+    node_names:
+      - planner_server
+      - behavior_server
+      - velocity_smoother
+      - costmap/costmap
